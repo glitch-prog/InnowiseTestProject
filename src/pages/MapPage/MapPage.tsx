@@ -1,12 +1,18 @@
 import Geolocation from '@react-native-community/geolocation';
 import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, StyleSheet, PermissionsAndroid} from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 
 export default function MapPage() {
   const [currentLongitude, setCurrentLongitude] = useState('37');
   const [currentLatitude, setCurrentLatitude] = useState('45');
   const [locationStatus, setLocationStatus] = useState('');
+  const [coord, setCoordinate] = useState<any>({
+    latitude: +currentLatitude,
+    longitude: +currentLongitude,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
 
   const getOneTimeLocation = () => {
     setLocationStatus('Getting Location ...');
@@ -60,7 +66,13 @@ export default function MapPage() {
 
   useEffect(() => {
     requestGeolocationPermission();
-  }, []);
+    setCoordinate({
+      latitude: +currentLatitude,
+      longitude: +currentLongitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  }, [currentLatitude, currentLongitude]);
 
   return (
     <View style={styles.container}>
@@ -81,7 +93,13 @@ export default function MapPage() {
         }}
         showsUserLocation={true}
         showsMyLocationButton={true}
-        showsCompass={true}></MapView>
+        showsCompass={true}>
+        <Marker
+          draggable
+          coordinate={coord}
+          onDragEnd={e => setCoordinate(e.nativeEvent.coordinate)}
+        />
+      </MapView>
     </View>
   );
 }
