@@ -1,6 +1,8 @@
 import {View, Text, SectionList, ScrollView, StyleSheet} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {SectionListItem} from './SectionListItem';
+
+import firestore from '@react-native-firebase/firestore';
 
 const DATA = [
   {
@@ -22,6 +24,17 @@ const DATA = [
 ];
 
 export const SectionListPage = () => {
+  const [list, setList] = useState<any>();
+
+  const usersCollection = firestore()
+    .collection('places')
+    .onSnapshot(
+      response => {
+        setList(response.docs[0].data());
+      },
+      error => console.log(error),
+    );
+
   return (
     <View style={styles.container}>
       <SectionList
