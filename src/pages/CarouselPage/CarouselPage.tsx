@@ -10,6 +10,7 @@ import {
 import React, {useState, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {CarouselItem} from './CarouselItem';
+import Paginator from './Paginator';
 
 const slides = [
   {
@@ -19,6 +20,16 @@ const slides = [
   },
   {
     id: '2',
+    title: 'Track',
+    description: 'Here you can track some places where you can speak Russian',
+  },
+  {
+    id: '3',
+    title: 'Track',
+    description: 'Here you can track some places where you can speak Russian',
+  },
+  {
+    id: '4',
     title: 'Track',
     description: 'Here you can track some places where you can speak Russian',
   },
@@ -40,7 +51,7 @@ export const CarouselPage = () => {
         data={slides}
         renderItem={({item}) => <CarouselItem item={item} />}
         horizontal
-        showsHorizontalScrollIndicator
+        showsHorizontalScrollIndicator={false}
         pagingEnabled
         bounces={false}
         keyExtractor={item => item.id}
@@ -53,6 +64,7 @@ export const CarouselPage = () => {
         viewabilityConfig={viewConfig}
         // ref={slidesRef}
       />
+      <Paginator data={slides} scrollX={scrollCoord} />
       <Button title="Go back" onPress={() => navigation.goBack()} />
     </View>
   );

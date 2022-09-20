@@ -1,5 +1,5 @@
 import {View, Text, SectionList, ScrollView, StyleSheet} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {SectionListItem} from './SectionListItem';
 
 import firestore from '@react-native-firebase/firestore';
@@ -25,16 +25,21 @@ const DATA = [
 
 export const SectionListPage = () => {
   const [list, setList] = useState<any>();
+  console.log('list screen');
 
-  const usersCollection = firestore()
-    .collection('places')
-    .onSnapshot(
-      response => {
-        setList(response.docs[0].data());
-      },
-      error => console.log(error),
-    );
+  useEffect(() => {
+    const usersCollection = firestore()
+      .collection('places')
+      .onSnapshot(
+        response => {
+          console.log('response');
+          setList(response.docs[0].data());
+        },
+        error => console.log(error),
+      );
 
+    return () => usersCollection();
+  }, []);
   return (
     <View style={styles.container}>
       <SectionList
@@ -43,6 +48,7 @@ export const SectionListPage = () => {
         keyExtractor={(item, index) => item + index}
         renderItem={({item}) => <SectionListItem title={item} />}
         renderSectionHeader={({section: {title}}) => <Text>{title}</Text>}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
