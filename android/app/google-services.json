@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "373690244260",
+    "project_id": "rn-cis-432f7",
+    "storage_bucket": "rn-cis-432f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:373690244260:android:61e371e0b6702dfa76da31",
+        "android_client_info": {
+          "package_name": "com.innowisetestproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "373690244260-4nnahpih872v124q0nuf7i352kfr14lq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuSlBcIYBCQ_QJX0TszrdZOKqLyr7gWaE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "373690244260-4nnahpih872v124q0nuf7i352kfr14lq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
