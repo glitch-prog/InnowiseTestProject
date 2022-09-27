@@ -33,6 +33,7 @@ export const SectionListPage = () => {
       .onSnapshot(
         response => {
           console.log('response');
+          console.log(response.docs.map((el: any) => el.data()));
           setList(response.docs[0].data());
         },
         error => console.log(error),

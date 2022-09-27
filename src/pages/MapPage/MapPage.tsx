@@ -1,9 +1,13 @@
 import Geolocation from '@react-native-community/geolocation';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, StyleSheet, PermissionsAndroid} from 'react-native';
+import {View, Text, StyleSheet, PermissionsAndroid, Button} from 'react-native';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import {setCoordsToStore, setType} from '../../store/reducers/coordsSlice';
+import {useAppDispatch, useAppSelector} from '../../utils/hooks/reduxHooks';
 
 export default function MapPage() {
+  const type = useAppSelector(state => state.coords.type);
   const [currentLongitude, setCurrentLongitude] = useState('37');
   const [currentLatitude, setCurrentLatitude] = useState('45');
   const [locationStatus, setLocationStatus] = useState('');
@@ -13,6 +17,9 @@ export default function MapPage() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
 
   const getOneTimeLocation = () => {
     setLocationStatus('Getting Location ...');
@@ -64,6 +71,12 @@ export default function MapPage() {
     }
   }, []);
 
+  const handleOnConfirm = () => {
+    dispatch(setCoordsToStore(coord));
+    dispatch(setType());
+    navigation.navigate('+');
+  };
+
   useEffect(() => {
     requestGeolocationPermission();
     setCoordinate({
@@ -100,6 +113,7 @@ export default function MapPage() {
           onDragEnd={e => setCoordinate(e.nativeEvent.coordinate)}
         />
       </MapView>
+      {type ? <Button title={'Confirm'} onPress={handleOnConfirm} /> : null}
     </View>
   );
 }

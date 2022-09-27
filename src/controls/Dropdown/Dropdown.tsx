@@ -1,14 +1,39 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import SelectList from 'react-native-dropdown-select-list';
+import {Dropdown} from 'react-native-material-dropdown';
 
-const Dropdown = () => {
+const DropdownInput = () => {
+  const [selected, setSelected] = React.useState('');
+
+  let data = [
+    {
+      value: 'Banana',
+    },
+    {
+      value: 'Mango',
+    },
+    {
+      value: 'Pear',
+    },
+  ];
   return (
-    <View>
-      <Text>Dropdown</Text>
-    </View>
+    <Dropdown
+      data={[
+        {
+          value: 'Banana',
+        },
+        {
+          value: 'Mango',
+        },
+        {
+          value: 'Pear',
+        },
+      ]}
+    />
   );
 };
 
-export default Dropdown;
+export default DropdownInput;
 
 const styles = StyleSheet.create({});
