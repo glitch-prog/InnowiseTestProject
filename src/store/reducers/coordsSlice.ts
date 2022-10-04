@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 import type {PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../store';
+import {ICoord} from 'pages/MapPage/MapPage.interface';
 
 // Define a type for the slice state
 interface ListState {
@@ -30,10 +31,10 @@ export const coordsSlice = createSlice({
   initialState,
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setCoordsToStore: (state, action: PayloadAction<any>) => {
+    setCoordsToStore: (state, action: PayloadAction<ICoord>) => {
       state.value = action.payload;
     },
-    setType: state => {
+    setType: (state) => {
       state.type = !state.type;
     },
   },
@@ -41,7 +42,6 @@ export const coordsSlice = createSlice({
 
 export const {setCoordsToStore, setType} = coordsSlice.actions;
 
-// Other code such as selectors can use the imported `RootState` type
 export const selectCount = (state: RootState) => state.list.value;
 
 export default coordsSlice.reducer;

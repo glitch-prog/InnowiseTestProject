@@ -1,28 +1,15 @@
-import {StyleSheet, Text, TextInput, View} from 'react-native';
+import {TextInput} from 'react-native';
 import React from 'react';
-import {useController} from 'react-hook-form';
+import {styles} from './Input.styles';
+import {IInput} from './Input.interface';
 
-export const Input = ({name, control, placeholder}: any) => {
-  const {field} = useController({control, defaultValue: '', name});
+export const Input = React.memo(({placeholder, value, onChange}: IInput) => {
   return (
     <TextInput
-      value={field.value}
-      onChangeText={field.onChange}
+      value={value}
+      onChangeText={onChange}
       placeholder={placeholder}
       style={styles.input}
     />
   );
-};
-
-const styles = StyleSheet.create({
-  input: {
-    backgroundColor: 'white',
-    borderColor: 'none',
-    width: '80%',
-    height: 40,
-    padding: 10,
-    marginBottom: 10,
-    marginHorizontal: 10,
-    borderRadius: 4,
-  },
 });

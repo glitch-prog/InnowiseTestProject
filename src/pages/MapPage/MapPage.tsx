@@ -1,21 +1,29 @@
 import Geolocation from '@react-native-community/geolocation';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import firestore, {
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
+import {useNavigation} from '@react-navigation/native';
+import {IListElement} from 'pages/SectionListPage/SectionList.interface';
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, StyleSheet, PermissionsAndroid, Button} from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import {View, PermissionsAndroid, Button} from 'react-native';
+import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {setCoordsToStore, setType} from '../../store/reducers/coordsSlice';
 import {useAppDispatch, useAppSelector} from '../../utils/hooks/reduxHooks';
+import {ICoord} from './MapPage.interface';
+import {styles} from './MapPage.styles';
 
-export default function MapPage() {
-  const type = useAppSelector(state => state.coords.type);
-  const [currentLongitude, setCurrentLongitude] = useState('37');
-  const [currentLatitude, setCurrentLatitude] = useState('45');
-  const [locationStatus, setLocationStatus] = useState('');
-  const [coord, setCoordinate] = useState<any>({
+export const MapPage = () => {
+  const type = useAppSelector((state) => state.coords.type);
+  const [list, setList] = useState<any>([]);
+  const [currentLongitude, setCurrentLongitude] = useState<string>('37');
+  const [currentLatitude, setCurrentLatitude] = useState<string>('45');
+  const [locationStatus, setLocationStatus] = useState<string>('');
+  const places = useAppSelector((state) => state.list.value);
+  console.log(places);
+
+  const [coord, setCoordinate] = useState<ICoord | LatLng>({
     latitude: +currentLatitude,
     longitude: +currentLongitude,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
   });
 
   const navigation = useNavigation();
@@ -24,23 +32,16 @@ export default function MapPage() {
   const getOneTimeLocation = () => {
     setLocationStatus('Getting Location ...');
     Geolocation.getCurrentPosition(
-      //Will give you the current location
-      position => {
+      (position) => {
         setLocationStatus('You are Here');
-
-        //getting the Longitude from the location json
-        const currentLongitude = JSON.stringify(position.coords.longitude);
-
-        //getting the Latitude from the location json
-        const currentLatitude = JSON.stringify(position.coords.latitude);
-
-        //Setting Longitude state
-        setCurrentLongitude(currentLongitude);
-
-        //Setting Longitude state
-        setCurrentLatitude(currentLatitude);
+        const currentMobileLongitude = JSON.stringify(
+          position.coords.longitude,
+        );
+        const currentMobileLatitude = JSON.stringify(position.coords.latitude);
+        setCurrentLongitude(currentMobileLongitude);
+        setCurrentLatitude(currentMobileLatitude);
       },
-      error => {
+      (error) => {
         setLocationStatus(error.message);
       },
       {
@@ -54,20 +55,17 @@ export default function MapPage() {
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
-        title: 'Cool Photo App Camera Permission',
+        title: 'Geolocation persmission',
         message:
-          'Cool Photo App needs access to your camera ' +
-          'so you can take awesome pictures.',
+          'RN-CIS App needs access to your geolocation ' +
+          'so you can check places you need in.',
         buttonNeutral: 'Ask Me Later',
         buttonNegative: 'Cancel',
         buttonPositive: 'OK',
       },
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('done');
       getOneTimeLocation();
-    } else {
-      console.log('Camera permission denied');
     }
   }, []);
 
@@ -82,15 +80,30 @@ export default function MapPage() {
     setCoordinate({
       latitude: +currentLatitude,
       longitude: +currentLongitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
     });
-  }, [currentLatitude, currentLongitude]);
+    const usersCollection = firestore()
+      .collection('places')
+      .onSnapshot(
+        (response) => {
+          setList(
+            response.docs.map((el: FirebaseFirestoreTypes.DocumentData) =>
+              el.data(),
+            ),
+          );
+        },
+        (err) => {
+          // setError(err);
+          console.log(err);
+        },
+      );
+
+    return () => usersCollection();
+  }, [currentLatitude, currentLongitude, requestGeolocationPermission]);
 
   return (
     <View style={styles.container}>
       <MapView
-        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
           latitude: +currentLatitude,
@@ -107,29 +120,22 @@ export default function MapPage() {
         showsUserLocation={true}
         showsMyLocationButton={true}
         showsCompass={true}>
-        <Marker
-          draggable
-          coordinate={coord}
-          onDragEnd={e => setCoordinate(e.nativeEvent.coordinate)}
-        />
+        {type ? (
+          <Marker
+            draggable
+            coordinate={coord}
+            key={coord.latitude + coord.longitude}
+            onDragEnd={(e) => setCoordinate(e.nativeEvent.coordinate)}
+          />
+        ) : null}
+
+        {list.map((el: any) =>
+          el.coordinates != null ? (
+            <Marker key={el.id} coordinate={el.coordinates} />
+          ) : null,
+        )}
       </MapView>
       {type ? <Button title={'Confirm'} onPress={handleOnConfirm} /> : null}
     </View>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    height: '100%',
-    width: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});
-function alert(message: string): void {
-  throw new Error('Function not implemented.');
-}
+};

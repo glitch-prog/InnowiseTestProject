@@ -1,54 +1,30 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  PermissionsAndroid,
-  Platform,
-  Image,
-  StyleSheet,
-  Button,
-  FlatList,
-  ScrollView,
-} from 'react-native';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
 import React, {useState} from 'react';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {useForm} from 'react-hook-form';
-import {Input} from '../../controls/Input/Input';
+import {
+  ImagePickerResponse,
+  launchCamera,
+  launchImageLibrary,
+} from 'react-native-image-picker';
+import {FieldValues, useForm} from 'react-hook-form';
 import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch} from '../../utils/hooks/reduxHooks';
+import {useAppDispatch, useAppSelector} from '../../utils/hooks/reduxHooks';
 import {setType} from '../../store/reducers/coordsSlice';
-import DropdownInput from '../../controls/Dropdown/Dropdown';
+
 import firestore from '@react-native-firebase/firestore';
+
+import {styles} from './AddToList.styles';
+import {CustomButton} from 'controls/CustomButton/CustomButton';
+import {CategoryButton} from 'controls/CategoryButton/CategoryButton';
+import {ReactHookInput} from 'services/reactHookInput/ReactHookInput';
+import {CustomSwitch} from 'controls/CustimSwitch/CustomSwitch';
+
 export const AddToListPage = () => {
   const navigation = useNavigation();
-  const [photo, setPhoto] = useState<any>();
+  const [photo, setPhoto] = useState<ImagePickerResponse>();
   const dispatch = useAppDispatch();
   const {control, handleSubmit} = useForm();
   const [category, setCategory] = useState<string>('');
-
-  const bankList = [
-    {value: 'Food'},
-    {value: 'Medicine'},
-    {value: 'Entertaiment'},
-    {value: 'Hotel'},
-    {value: 'Other'},
-  ];
-  const [filterBankList, setFilterBankList] = useState<any>([]);
-  const [bankName, setBankName] = useState('');
-
-  const handleChangePhoto = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        includeBase64: true,
-      },
-      response => {
-        // console.log(response);
-        setPhoto(response);
-      },
-    );
-  };
+  const coords = useAppSelector((state) => state.coords.value);
 
   const onCameraPress = () => {
     launchCamera(
@@ -59,29 +35,29 @@ export const AddToListPage = () => {
         maxHeight: 200,
         maxWidth: 200,
       },
-      response => {
-        console.log(response);
+      (response) => {
+        setPhoto(response);
       },
     );
   };
 
-  const handleOnSubmit = (data: any) => {
-    const place = {
-      name: data.name,
-      description: data.description,
-      image: photo.assets[0].base64,
-      timestamp: new Date().toISOString(),
-      coordinates: {latitude: 0, longatude: 0},
-      category: category,
-    };
+  const handleOnSubmit = (data: FieldValues) => {
+    if (photo?.assets) {
+      const place = {
+        name: data.name,
+        description: data.description,
+        image: `${photo.assets[0].base64}`,
+        timestamp: new Date().toISOString(),
+        coordinates: {latitude: coords.latitude, longitude: coords.longitude},
+        category: `${category}`,
+      };
 
-    firestore()
-      .collection('places')
-      .add(place)
-      .then(() => {
-        console.log('place added!');
-      });
-    console.log(JSON.stringify(place));
+      console.log(place);
+      firestore()
+        .collection('places')
+        .add(place)
+        .then(() => console.log('added'));
+    }
   };
 
   const handleOnMark = () => {
@@ -89,26 +65,28 @@ export const AddToListPage = () => {
     dispatch(setType());
   };
 
-  const onBankSelected = (value: any) => {
-    setBankName(value);
-    setFilterBankList([]);
-  };
-  const filterBanks = (value: any) => {
-    let filterData =
-      bankList && bankList?.length > 0
-        ? bankList?.filter(data =>
-            data?.value.toLowerCase()?.includes(value?.toLowerCase()),
-          )
-        : [];
-    setFilterBankList([...filterData]);
+  const handleOnCategoryPress = (str: string) => {
+    setCategory(str);
+    console.log(str);
   };
 
+  const choosePhoto = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: true,
+      },
+      (response) => {
+        setPhoto(response);
+      },
+    );
+  };
   return (
     <View style={styles.container}>
       <Text>AddToList</Text>
 
-      <Input name={'name'} control={control} placeholder={'Name'} />
-      <Input
+      <ReactHookInput name={'name'} control={control} placeholder={'Name'} />
+      <ReactHookInput
         name={'description'}
         control={control}
         placeholder={'Description'}
@@ -117,99 +95,46 @@ export const AddToListPage = () => {
       <View>
         <Text>Category</Text>
         <View style={styles.categoryBlock}>
-          <TouchableOpacity style={styles.categoryBtn}>
-            <Text>Medicine</Text>
-          </TouchableOpacity>
+          <CategoryButton
+            text={'Medicine'}
+            category={category}
+            onPress={() => handleOnCategoryPress('Medicine')}
+          />
 
-          <TouchableOpacity style={styles.categoryBtn}>
-            <Text>Entertainment</Text>
-          </TouchableOpacity>
+          <CategoryButton
+            text={'Entertaiment'}
+            category={category}
+            onPress={() => handleOnCategoryPress('Entertaiment')}
+          />
 
-          <TouchableOpacity style={styles.categoryBtn}>
-            <Text>Food</Text>
-          </TouchableOpacity>
+          <CategoryButton
+            text={'Food'}
+            category={category}
+            onPress={() => handleOnCategoryPress('Food')}
+          />
         </View>
       </View>
 
-      <TouchableOpacity onPress={handleOnMark}>
-        <Text>Mark</Text>
-      </TouchableOpacity>
+      <CustomSwitch />
 
-      {/* <View>
-         <Text>Category</Text> 
+      <CustomButton text={'Mark'} onPress={handleOnMark} />
+      <CustomButton text={'Photo'} onPress={onCameraPress} />
+      <CustomButton text={'Add'} onPress={choosePhoto} />
 
-        <TextInput
-          value={bankName}
-          placeholder={strings.selectBankName}
-          style={styles.textInput}
-          onChangeText={filterBanks}
-        />
-        <FlatList
-          data={filterBankList}
-          renderItem={({item, index}) => (
-            <TouchableOpacity onPress={() => onBankSelected(item?.value)}>
-              <View>
-                <Text>{item?.value || ''}</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item.value}
-        />
-      </View> */}
-
-      <TouchableOpacity onPress={() => onCameraPress}>
-        <Text>Photo</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleChangePhoto()}>
-        <Text>Add</Text>
-      </TouchableOpacity>
-
-      {photo ? (
+      {photo?.assets ? (
         <Image
           style={{width: 200, height: 200}}
           source={{
-            uri: photo?.assets[0].uri,
+            uri: photo.assets[0].uri,
           }}
         />
       ) : (
         <Text>Upload your photo</Text>
       )}
+
       <TouchableOpacity onPress={handleSubmit(handleOnSubmit)}>
         <Text>Submit</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  label: {
-    color: 'white',
-    margin: 20,
-    marginLeft: 0,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryBlock: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  categoryBtn: {
-    width: 120,
-    height: 50,
-    backgroundColor: 'purple',
-    marginLeft: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  choosedCategoryBtn: {
-    width: 120,
-    height: 50,
-    backgroundColor: 'green',
-    marginLeft: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

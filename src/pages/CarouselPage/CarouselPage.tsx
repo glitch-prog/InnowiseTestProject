@@ -1,79 +1,39 @@
-import {
-  View,
-  Text,
-  Button,
-  FlatList,
-  StyleSheet,
-  useWindowDimensions,
-  Animated,
-} from 'react-native';
-import React, {useState, useRef} from 'react';
+import {View, Button, FlatList, Animated} from 'react-native';
+import React, {useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {CarouselItem} from './CarouselItem';
-import Paginator from './Paginator';
-
-const slides = [
-  {
-    id: '1',
-    title: 'hello',
-    description: 'This app is created for people from CIS region',
-  },
-  {
-    id: '2',
-    title: 'Track',
-    description: 'Here you can track some places where you can speak Russian',
-  },
-  {
-    id: '3',
-    title: 'Track',
-    description: 'Here you can track some places where you can speak Russian',
-  },
-  {
-    id: '4',
-    title: 'Track',
-    description: 'Here you can track some places where you can speak Russian',
-  },
-];
+import {Paginator} from './Paginator';
+import {styles} from './Carousel.styles';
+import {SLIDES} from 'constants/constants';
 
 export const CarouselPage = () => {
   const navigation = useNavigation();
-  const [currentId, setCurrentId] = useState<number>(0);
   const scrollCoord = useRef(new Animated.Value(0)).current;
-
-  const viewableItemsChange = useRef(({viewableItems}: any) =>
-    setCurrentId(viewableItems[0].index),
-  ).current;
-
   const viewConfig = useRef({viewAreaCoveragePercentThreshold: 50}).current;
+
+  const navigateBack = () => navigation.goBack();
+
   return (
     <View style={[styles.container]}>
       <FlatList
-        data={slides}
-        renderItem={({item}) => <CarouselItem item={item} />}
+        data={SLIDES}
+        renderItem={({item}) => (
+          <CarouselItem title={item.title} description={item.description} />
+        )}
         horizontal
         showsHorizontalScrollIndicator={false}
         pagingEnabled
         bounces={false}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {x: scrollCoord}}}],
           {useNativeDriver: false},
         )}
         scrollEventThrottle={32}
-        onViewableItemsChanged={viewableItemsChange}
         viewabilityConfig={viewConfig}
-        // ref={slidesRef}
       />
-      <Paginator data={slides} scrollX={scrollCoord} />
-      <Button title="Go back" onPress={() => navigation.goBack()} />
+      <Paginator data={SLIDES} scrollX={scrollCoord} />
+      <Button title="Go back" onPress={navigateBack} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
