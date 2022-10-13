@@ -7,7 +7,9 @@ export const styles = StyleSheet.create({
     marginLeft: 0,
   },
   container: {
-    flex: 1,
+    // display: 'flex',
+    paddingVertical: 100,
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },

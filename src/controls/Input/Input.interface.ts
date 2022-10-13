@@ -1,5 +1,5 @@
 export interface IInput {
   placeholder: string;
   value: string;
-  onChange: () => void;
+  onChange: (text: string) => void;
 }

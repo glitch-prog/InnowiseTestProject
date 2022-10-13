@@ -22,8 +22,30 @@ export const BottomTabNavigation = () => {
           ),
         }}
       />
-      <Tab.Screen name="+" component={AddToListPage} />
-      <Tab.Screen name="Map" component={MapPage} />
+      <Tab.Screen
+        name="Add"
+        component={AddToListPage}
+        options={{
+          tabBarIcon: () => (
+            <Image
+              source={require('./add.png')}
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={MapPage}
+        options={{
+          tabBarIcon: () => (
+            <Image
+              source={require('./map.png')}
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

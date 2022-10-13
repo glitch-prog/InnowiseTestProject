@@ -5,7 +5,6 @@ import {styles} from './Carousel.styles';
 
 const Paginator = ({data, scrollX}: IPaginator) => {
   const {width} = useWindowDimensions();
-
   return (
     <View style={styles.paginatorContainer}>
       {data.map((_, id: number) => {

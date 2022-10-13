@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#04819E',
+    backgroundColor: '#658fea',
     borderRadius: 15,
   },
   choosedCategoryBtn: {

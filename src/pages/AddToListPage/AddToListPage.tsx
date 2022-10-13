@@ -1,10 +1,14 @@
-import {View, Text, TouchableOpacity, Image} from 'react-native';
-import React, {useState} from 'react';
 import {
-  ImagePickerResponse,
-  launchCamera,
-  launchImageLibrary,
-} from 'react-native-image-picker';
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
+} from 'react-native';
+import React, {useState} from 'react';
+
+import {ImagePickerResponse} from 'react-native-image-picker';
+
 import {FieldValues, useForm} from 'react-hook-form';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../utils/hooks/reduxHooks';
@@ -17,6 +21,7 @@ import {CustomButton} from 'controls/CustomButton/CustomButton';
 import {CategoryButton} from 'controls/CategoryButton/CategoryButton';
 import {ReactHookInput} from 'services/reactHookInput/ReactHookInput';
 import {CustomSwitch} from 'controls/CustimSwitch/CustomSwitch';
+import {Camera} from 'services/Camera/launchGallery';
 
 export const AddToListPage = () => {
   const navigation = useNavigation();
@@ -25,21 +30,6 @@ export const AddToListPage = () => {
   const {control, handleSubmit} = useForm();
   const [category, setCategory] = useState<string>('');
   const coords = useAppSelector((state) => state.coords.value);
-
-  const onCameraPress = () => {
-    launchCamera(
-      {
-        saveToPhotos: true,
-        mediaType: 'photo',
-        includeBase64: false,
-        maxHeight: 200,
-        maxWidth: 200,
-      },
-      (response) => {
-        setPhoto(response);
-      },
-    );
-  };
 
   const handleOnSubmit = (data: FieldValues) => {
     if (photo?.assets) {
@@ -70,19 +60,23 @@ export const AddToListPage = () => {
     console.log(str);
   };
 
-  const choosePhoto = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        includeBase64: true,
-      },
-      (response) => {
-        setPhoto(response);
-      },
-    );
-  };
+  // const choosePhoto = () => {
+  //   launchImageLibrary(
+  //     {
+  //       mediaType: 'photo',
+  //       includeBase64: false,
+  //     },
+  //     (response) => {
+  //       console.log(response);
+  //       setPhoto(response);
+  //     },
+  //   );
+  // };
+
+  const choosePhoto = () => new Camera().launchImage(setPhoto);
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
+      {/* <View style={styles.container}> */}
       <Text>AddToList</Text>
 
       <ReactHookInput name={'name'} control={control} placeholder={'Name'} />
@@ -118,7 +112,7 @@ export const AddToListPage = () => {
       <CustomSwitch />
 
       <CustomButton text={'Mark'} onPress={handleOnMark} />
-      <CustomButton text={'Photo'} onPress={onCameraPress} />
+      {/* <CustomButton text={'Photo'} onPress={onCameraPress} /> */}
       <CustomButton text={'Add'} onPress={choosePhoto} />
 
       {photo?.assets ? (
@@ -135,6 +129,7 @@ export const AddToListPage = () => {
       <TouchableOpacity onPress={handleSubmit(handleOnSubmit)}>
         <Text>Submit</Text>
       </TouchableOpacity>
-    </View>
+      {/* </View> */}
+    </KeyboardAvoidingView>
   );
 };

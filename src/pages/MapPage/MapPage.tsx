@@ -3,7 +3,6 @@ import firestore, {
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
 import {useNavigation} from '@react-navigation/native';
-import {IListElement} from 'pages/SectionListPage/SectionList.interface';
 import React, {useCallback, useEffect, useState} from 'react';
 import {View, PermissionsAndroid, Button} from 'react-native';
 import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
@@ -72,7 +71,7 @@ export const MapPage = () => {
   const handleOnConfirm = () => {
     dispatch(setCoordsToStore(coord));
     dispatch(setType());
-    navigation.navigate('+');
+    navigation.navigate('Add');
   };
 
   useEffect(() => {

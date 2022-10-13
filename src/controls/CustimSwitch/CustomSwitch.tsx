@@ -1,4 +1,4 @@
-import {View, Text, Switch} from 'react-native';
+import {Switch} from 'react-native';
 import React, {useState} from 'react';
 
 export const CustomSwitch = () => {
